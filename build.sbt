@@ -5,7 +5,7 @@ version in ThisBuild := "0.0.1-SNAPSHOT"
 scalaVersion in ThisBuild := "2.11.12"
 
 val Version = new {
-  val obj_interop = "0.0.6-SNAPSHOT"
+  val swog        = "0.1.0-SNAPSHOT"
   //val slogging    = "0.5.3"
   val smacrotools = "0.0.8"
   val utest       = "0.6.3"
@@ -16,11 +16,10 @@ lazy val commonSettings = Seq(
   scalacOptions ++= Seq("-deprecation","-unchecked","-feature","-language:implicitConversions","-Xlint"),
   addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full),
   libraryDependencies ++= Seq(
-    "de.surfice" %%% "scalanative-interop-cobj" % Version.obj_interop
-    //"com.lihaoyi" %%% "utest" % Version.utest % "test"
+    "de.surfice" %%% "swog-cobj" % Version.swog
     ),
-    testFrameworks += new TestFramework("utest.runner.Framework")
-  )
+  testFrameworks += new TestFramework("utest.runner.Framework")
+)
 
 lazy val webview = project.in(file("."))
   .enablePlugins(ScalaNativePlugin)
@@ -31,12 +30,11 @@ lazy val webview = project.in(file("."))
   )
 
 lazy val test = project
-  .enablePlugins(ScalaNativePlugin,NBHMakePlugin)
+  .enablePlugins(ScalaNativePlugin,NBHMakePlugin,NBHPkgConfigPlugin)
+  .dependsOn(webview)
   .settings(commonSettings ++ dontPublish: _*)
   .settings(
-    libraryDependencies ++= Seq(
-      "de.surfice" %%% "scalanative-webview" % "0.0.1-SNAPSHOT"
-    ),
+    pconfPlatform := PConfPlatform.MacOS,
     nativeLinkStubs := true,
     nativeLinkingOptions ++= nbhNativeLinkingOptions.value
   )
